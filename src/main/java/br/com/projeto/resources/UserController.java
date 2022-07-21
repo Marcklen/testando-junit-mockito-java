@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import br.com.projeto.domain.User;
 import br.com.projeto.domain.dto.UserDTO;
 import br.com.projeto.services.UserService;
 
@@ -25,13 +24,15 @@ import br.com.projeto.services.UserService;
 @RequestMapping("/user")
 public class UserController {
 
+	private static final String ID = "/{id}";
+
 	@Autowired
 	private ModelMapper mapper;
 
 	@Autowired
 	private UserService service;
 
-	@GetMapping(value = "/{id}")
+	@GetMapping(value = ID)
 	public ResponseEntity<UserDTO> findById(@PathVariable Integer id) {
 		return ResponseEntity.ok().body(mapper.map(service.findById(id), UserDTO.class));
 	}
@@ -48,16 +49,20 @@ public class UserController {
 	@PostMapping
 	public ResponseEntity<UserDTO> create(@RequestBody UserDTO dto) {
 		URI uri = ServletUriComponentsBuilder
-				.fromCurrentRequest().path("/{id}")
+				.fromCurrentRequest().path(ID)
 				.buildAndExpand(service.create(dto).getId()).toUri();
 		return ResponseEntity.created(uri).build();
 	}
 	
-	@PutMapping(value = "/{id}")
+	@PutMapping(value = ID)
 	public ResponseEntity<UserDTO> update(@PathVariable Integer id, @RequestBody UserDTO dto) {
 		dto.setId(id);
 		return ResponseEntity.ok().body(mapper.map(service.update(dto), UserDTO.class));
 	}
 	
-	//@DeleteMapping
+	@DeleteMapping(value = ID)
+	public ResponseEntity<UserDTO> delete(@PathVariable Integer id) {
+		service.delete(id);
+		return ResponseEntity.noContent().build();
+	}
 }
